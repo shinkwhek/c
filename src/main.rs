@@ -1,3 +1,14 @@
+use std::io;
+use std::env;
+
 fn main() {
-    println!("Hello, world!");
+
+    let args: Vec<String> = env::args().collect::<Vec<String>>();
+
+
+    println!(".intel_syntax noprefix");
+    println!(".global main");
+    println!("main:");
+    println!("  mov rax, {}", args[1]);
+    println!("  ret");
 }
