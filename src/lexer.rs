@@ -2,9 +2,9 @@
 
 #[derive(Debug, PartialEq)]
 pub enum Token {
-    Tk_Num(usize),
-    Tk_Plus,
-    Tk_Minus,
+    TkNum(usize),
+    TkPlus,
+    TkMinus,
 }
 
 #[derive(Debug, PartialEq)]
@@ -32,7 +32,7 @@ impl Lexer {
 }
 
 impl Lexer {
-    fn read_token(mut self) -> Result<Self, ()> {
+    fn read_token(self) -> Result<Self, ()> {
         match self.peek()? {
             // 'a'...'z' | 'A'...'Z' => self.read_key_id(),
             '0'...'9' => self.read_num(),
@@ -46,17 +46,17 @@ impl Lexer {
         self = l;
         match num.parse() {
             Ok(n) => {
-                self.tokens.push(Token::Tk_Num(n));
+                self.tokens.push(Token::TkNum(n));
                 Ok(self)
             }
-            Err(e) => Err(()),
+            Err(_e) => Err(()),
         }
     }
 
     fn read_symbol(mut self) -> Result<Self, ()> {
         let token = match self.peek()? {
-            '+' => Token::Tk_Plus,
-            '-' => Token::Tk_Minus,
+            '+' => Token::TkPlus,
+            '-' => Token::TkMinus,
             _ => return Err(()),
         };
         self = self.step();
@@ -98,11 +98,11 @@ fn run_test() {
     assert_eq!(
         a.run().unwrap(),
         vec![
-            Token::Tk_Num(20),
-            Token::Tk_Plus,
-            Token::Tk_Num(3),
-            Token::Tk_Minus,
-            Token::Tk_Num(5),
+            Token::TkNum(20),
+            Token::TkPlus,
+            Token::TkNum(3),
+            Token::TkMinus,
+            Token::TkNum(5),
         ]
     );
 }
@@ -116,7 +116,7 @@ fn read_token_test() {
         Lexer {
             code: "20+3-5".to_string(),
             pos: 2,
-            tokens: vec![Token::Tk_Num(20)],
+            tokens: vec![Token::TkNum(20)],
         }
     );
     let a3 = a2.read_token().unwrap();
@@ -125,7 +125,7 @@ fn read_token_test() {
         Lexer {
             code: "20+3-5".to_string(),
             pos: 3,
-            tokens: vec![Token::Tk_Num(20), Token::Tk_Plus],
+            tokens: vec![Token::TkNum(20), Token::TkPlus],
         }
     );
     let a4 = a3.read_token().unwrap();
@@ -134,7 +134,7 @@ fn read_token_test() {
         Lexer {
             code: "20+3-5".to_string(),
             pos: 4,
-            tokens: vec![Token::Tk_Num(20), Token::Tk_Plus, Token::Tk_Num(3)],
+            tokens: vec![Token::TkNum(20), Token::TkPlus, Token::TkNum(3)],
         }
     );
     let a5 = a4.read_token().unwrap();
@@ -144,10 +144,10 @@ fn read_token_test() {
             code: "20+3-5".to_string(),
             pos: 5,
             tokens: vec![
-                Token::Tk_Num(20),
-                Token::Tk_Plus,
-                Token::Tk_Num(3),
-                Token::Tk_Minus
+                Token::TkNum(20),
+                Token::TkPlus,
+                Token::TkNum(3),
+                Token::TkMinus
             ],
         }
     );
@@ -158,11 +158,11 @@ fn read_token_test() {
             code: "20+3-5".to_string(),
             pos: 6,
             tokens: vec![
-                Token::Tk_Num(20),
-                Token::Tk_Plus,
-                Token::Tk_Num(3),
-                Token::Tk_Minus,
-                Token::Tk_Num(5),
+                Token::TkNum(20),
+                Token::TkPlus,
+                Token::TkNum(3),
+                Token::TkMinus,
+                Token::TkNum(5),
             ],
         }
     );
@@ -177,7 +177,7 @@ fn read_symbol_test() {
         Lexer {
             code: "+12".to_string(),
             pos: 1,
-            tokens: vec![Token::Tk_Plus],
+            tokens: vec![Token::TkPlus],
         }
     );
 }
@@ -190,7 +190,7 @@ fn read_num_test() {
         Lexer {
             code: "12345a".to_string(),
             pos: 5,
-            tokens: vec![Token::Tk_Num(12345)],
+            tokens: vec![Token::TkNum(12345)],
         }
     );
 }
