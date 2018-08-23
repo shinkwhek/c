@@ -1,2 +1,3 @@
-mod lexer;
-mod node;
+pub mod lexer;
+pub mod node;
+pub mod parser;

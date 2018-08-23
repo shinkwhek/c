@@ -1,5 +1,3 @@
-#![feature(slice_patterns)]
-
 #[derive(Debug, PartialEq)]
 pub enum Token {
     Num(usize),
@@ -15,7 +13,7 @@ pub struct Lexer {
 }
 
 impl Lexer {
-    pub fn new(code: &'static str) -> Lexer {
+    pub fn new(code: &str) -> Lexer {
         Lexer {
             code: code.to_string(),
             pos: 0,
