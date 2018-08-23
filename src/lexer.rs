@@ -212,7 +212,7 @@ fn cut_token_test() {
 }
 
 #[test]
-fn lexer_peeK_test() {
+fn lexer_peek_test() {
     let a = Lexer::new("abc");
     assert_eq!(a.peek().unwrap(), 'a');
 }
