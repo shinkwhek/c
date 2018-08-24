@@ -13,9 +13,9 @@ pub enum Op {
 
 #[derive(Debug, PartialEq)]
 pub struct Ir {
-    op: Op,
-    lhs: usize,
-    rhs: usize,
+    pub op: Op,
+    pub lhs: usize,
+    pub rhs: usize,
 }
 
 impl Ir {
