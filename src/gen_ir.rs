@@ -50,7 +50,7 @@ impl GenIr {
 }
 
 impl GenIr {
-    fn gen_sub(&mut self, mut node: Node) -> Result<usize, ()> {
+    fn gen_sub(&mut self, node: Node) -> Result<usize, ()> {
         match node.base {
             NodeBase::Number(n) => {
                 let current = self.regc;
