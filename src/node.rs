@@ -2,7 +2,6 @@
 pub enum NodeBase {
     BinaryOp(Box<Node>, Box<Node>, BinOp),
     Number(usize),
-    Nope,
 }
 
 #[derive(Debug, PartialEq)]

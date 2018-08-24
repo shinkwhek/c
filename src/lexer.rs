@@ -13,7 +13,7 @@ pub struct Lexer {
 }
 
 impl Lexer {
-    pub fn new(code: &str) -> Lexer {
+    pub fn new(code: &str) -> Self {
         Lexer {
             code: code.to_string(),
             pos: 0,
