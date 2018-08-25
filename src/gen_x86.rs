@@ -44,6 +44,10 @@ impl X86 {
 
 impl X86 {
     pub fn gen(&mut self, irv: Vec<Ir>) {
+        println!(".intel_syntax noprefix");
+        println!(".global main");
+        println!("main:");
+
         for ir in &irv {
             match ir.op {
                 Op::Imm => {

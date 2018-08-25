@@ -29,10 +29,6 @@ fn main() {
                     //    println!("{:?}", ir);
                     //}
 
-                    println!(".intel_syntax noprefix");
-                    println!(".global main");
-                    println!("main:");
-
                     gen_x86::X86::new().gen(irv);
                 }
             }
