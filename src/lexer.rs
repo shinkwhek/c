@@ -1,5 +1,6 @@
-#[derive(Debug, PartialEq)]
+#[derive(Debug, PartialEq, Eq)]
 pub enum Token {
+    EOF,
     Num(usize),
     Plus,
     Minus,
@@ -29,6 +30,7 @@ impl Lexer {
         while !self.is_eof() {
             self = self.token()?;
         }
+        self.tokens.push(Token::EOF);
         Ok(self.tokens)
     }
 }

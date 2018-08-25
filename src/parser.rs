@@ -16,25 +16,28 @@ impl Parser {
 }
 
 impl Parser {
-    pub fn statement(&mut self) -> Result<Node, ()> {
+    pub fn statements(&mut self) -> Result<Node, ()> {
         let mut stmts: Vec<Box<Node>> = vec![];
         while !self.is_eof() {
-            let exp = match self.tokens[self.pos] {
-                Token::Return => {
-                    self.step();
-                    Ok(Node::new(NodeBase::Return(Box::new(self.expr()?))))
-                }
-                _ => self.expr(),
-            }?;
-            stmts.push(Box::new(exp));
-            self.expect(Token::SemiColon);
+            let stmt = self.statement()?;
+            stmts.push(Box::new(stmt));
         }
 
         Ok(Node::new(NodeBase::Statements(stmts)))
     }
-}
 
-impl Parser {
+    fn statement(&mut self) -> Result<Node, ()> {
+        let stmt = match self.tokens[self.pos] {
+            Token::Return => {
+                self.step();
+                Node::new(NodeBase::Return(Box::new(self.expr()?)))
+            }
+            _ => self.expr()?,
+        };
+        self.expect(Token::SemiColon);
+        Ok(stmt)
+    }
+
     fn expr(&mut self) -> Result<Node, ()> {
         self.expr_op1()
     }
@@ -119,6 +122,6 @@ impl Parser {
     }
 
     fn is_eof(&self) -> bool {
-        self.pos >= self.tokens.len()
+        self.tokens[self.pos] == Token::EOF
     }
 }
