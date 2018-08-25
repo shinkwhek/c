@@ -1,6 +1,6 @@
 #[derive(Debug, PartialEq)]
 pub enum NodeBase {
-    BinaryOp(Box<Node>, Box<Node>, BinOp),
+    BinaryOp(BinOp, Box<Node>, Box<Node>),
     Number(usize),
 }
 
@@ -8,6 +8,7 @@ pub enum NodeBase {
 pub enum BinOp {
     Add,
     Sub,
+    Mul,
 }
 
 #[derive(Debug, PartialEq)]

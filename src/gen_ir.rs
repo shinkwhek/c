@@ -4,6 +4,7 @@ use node::{BinOp, Node, NodeBase};
 pub enum Op {
     Add,
     Sub,
+    Mul,
     Imm,
     Mov,
     Return,
@@ -58,13 +59,14 @@ impl GenIr {
                 self.ins.push(Ir::new(Op::Imm, current, n));
                 return Ok(current);
             }
-            NodeBase::BinaryOp(lhs, rhs, op) => {
+            NodeBase::BinaryOp(op, lhs, rhs) => {
                 let lhs: usize = self.gen_sub(*lhs)?;
                 let rhs: usize = self.gen_sub(*rhs)?;
 
                 let op = match op {
                     BinOp::Add => Op::Add,
                     BinOp::Sub => Op::Sub,
+                    BinOp::Mul => Op::Mul,
                 };
 
                 self.ins.push(Ir::new(op, lhs, rhs));

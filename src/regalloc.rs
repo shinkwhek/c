@@ -33,7 +33,7 @@ impl RegAlloc {
                 ir.lhs = self.alloc(ir.lhs)?;
                 Ok(ir)
             }
-            Op::Add | Op::Sub => {
+            Op::Add | Op::Sub | Op::Mul => {
                 ir.lhs = self.alloc(ir.lhs)?;
                 ir.rhs = self.alloc(ir.rhs)?;
                 Ok(ir)

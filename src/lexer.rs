@@ -3,6 +3,7 @@ pub enum Token {
     Num(usize),
     Plus,
     Minus,
+    Asterisk,
 }
 
 #[derive(Debug, PartialEq)]
@@ -55,6 +56,7 @@ impl Lexer {
         let token = match self.peek()? {
             '+' => Token::Plus,
             '-' => Token::Minus,
+            '*' => Token::Asterisk,
             _ => return Err(()),
         };
         self = self.step();
@@ -164,13 +166,22 @@ fn read_token_test() {
 
 #[test]
 fn read_symbol_test() {
-    let a = Lexer::new("+12");
+    let a = Lexer::new("+*12");
     assert_eq!(
         a.read_symbol().unwrap(),
         Lexer {
-            code: "+12".to_string(),
+            code: "+*12".to_string(),
             pos: 1,
             tokens: vec![Token::Plus],
+        }
+    );
+    let a = Lexer::new("*12");
+    assert_eq!(
+        a.read_symbol().unwrap(),
+        Lexer {
+            code: "*12".to_string(),
+            pos: 1,
+            tokens: vec![Token::Asterisk],
         }
     );
 }
