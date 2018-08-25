@@ -1,7 +1,10 @@
-#[derive(Debug, PartialEq, Eq)]
+use node;
+
+#[derive(Debug, PartialEq)]
 pub enum Token {
     EOF,
     Num(usize),
+    // Equal,
     Plus,
     Minus,
     Asterisk,
@@ -40,7 +43,7 @@ impl Lexer {
         match self.peek()? {
             'a'...'z' | 'A'...'Z' => self.keyword_identifier(),
             '0'...'9' => self.num(),
-            '\n' | 't' | ' ' => self.step().token(),
+            '\n' | '\t' | ' ' => self.step().token(),
             _ => self.symbol(),
         }
     }
@@ -58,13 +61,15 @@ impl Lexer {
     }
 
     fn keyword_identifier(mut self) -> Result<Self, ()> {
-        let (l, s) = self.cut_token(|c| c.is_alphanumeric() || c == '_')?;
+        let (l, s) = self.cut_token(|c| c.is_alphanumeric() || c.is_numeric() || c == '_')?;
         self = l;
         if let Some(kw) = Lexer::keyword(&s) {
             self.tokens.push(kw);
-            return Ok(self);
+        } else {
+            // self.tokens.push(Lexer::ident(&s));
+            return Err(());
         }
-        Err(())
+        Ok(self)
     }
 
     fn keyword(s: &str) -> Option<Token> {
@@ -81,6 +86,7 @@ impl Lexer {
             '*' => Token::Asterisk,
             '/' => Token::Slash,
             ';' => Token::SemiColon,
+            // '=' => Token::Equal,
             _ => return Err(()),
         };
         self = self.step();
