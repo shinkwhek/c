@@ -127,6 +127,7 @@ fn run_test() {
             Token::Num(3),
             Token::Minus,
             Token::Num(5),
+            Token::EOF,
         ]
     );
 }
