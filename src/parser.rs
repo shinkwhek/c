@@ -28,6 +28,14 @@ impl Parser {
                         Box::new(self.number()?),
                     ));
                 }
+                Token::Slash => {
+                    self.step();
+                    lhs = Node::new(NodeBase::BinaryOp(
+                        BinOp::Div,
+                        Box::new(lhs),
+                        Box::new(self.number()?),
+                    ));
+                }
                 _ => break,
             }
         }

@@ -5,6 +5,7 @@ pub enum Op {
     Add,
     Sub,
     Mul,
+    Div,
     Imm,
     Mov,
     Return,
@@ -67,6 +68,7 @@ impl GenIr {
                     BinOp::Add => Op::Add,
                     BinOp::Sub => Op::Sub,
                     BinOp::Mul => Op::Mul,
+                    BinOp::Div => Op::Div,
                 };
 
                 self.ins.push(Ir::new(op, lhs, rhs));

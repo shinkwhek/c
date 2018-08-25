@@ -4,6 +4,7 @@ pub enum Token {
     Plus,
     Minus,
     Asterisk,
+    Slash,
 }
 
 #[derive(Debug, PartialEq)]
@@ -57,6 +58,7 @@ impl Lexer {
             '+' => Token::Plus,
             '-' => Token::Minus,
             '*' => Token::Asterisk,
+            '/' => Token::Slash,
             _ => return Err(()),
         };
         self = self.step();

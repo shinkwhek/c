@@ -63,6 +63,12 @@ impl X86 {
                     println!("  mul {}", self.reg(ir.lhs));
                     println!("  mov {}, rax", self.reg(ir.lhs));
                 }
+                Op::Div => {
+                    println!("  mov rax, {}", self.reg(ir.lhs));
+                    println!("  cqo");
+                    println!("  div {}", self.reg(ir.rhs));
+                    println!("  mov {}, rax", self.reg(ir.lhs));
+                }
                 Op::Return => {
                     println!("  mov rax, {}", self.reg(ir.lhs));
                     println!("  ret");
