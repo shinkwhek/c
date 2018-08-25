@@ -81,8 +81,8 @@ impl X86 {
 }
 
 impl X86 {
-    fn reg(&self, ir_reg: usize) -> String {
-        let s = &self.regs[ir_reg].name;
+    fn reg(&self, ir_reg: isize) -> String {
+        let s = &self.regs[ir_reg as usize].name;
         s.to_string()
     }
 }

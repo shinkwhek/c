@@ -5,8 +5,8 @@ use std::collections::HashMap;
 use gen_ir::{Ir, Op};
 
 pub struct RegAlloc {
-    map: HashMap<usize, usize>,
-    used: Vec<usize>,
+    map: HashMap<isize, isize>,
+    used: Vec<isize>,
 }
 
 impl RegAlloc {
@@ -51,7 +51,7 @@ impl RegAlloc {
         }
     }
 
-    fn alloc(&mut self, ir_reg: usize) -> Result<usize, ()> {
+    fn alloc(&mut self, ir_reg: isize) -> Result<isize, ()> {
         if let Some(r) = self.map.get(&ir_reg) {
             return Ok(*r);
         }
@@ -68,7 +68,7 @@ impl RegAlloc {
         return Err(());
     }
 
-    fn kill(&mut self, ir_reg: usize) {
+    fn kill(&mut self, ir_reg: isize) {
         self.used.retain(|&i| i != ir_reg);
     }
 }

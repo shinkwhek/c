@@ -16,7 +16,30 @@ impl Parser {
 }
 
 impl Parser {
-    pub fn expr_op2(&mut self) -> Result<Node, ()> {
+    pub fn statement(&mut self) -> Result<Node, ()> {
+        let mut stmts: Vec<Box<Node>> = vec![];
+        while !self.is_eof() {
+            let exp = match self.tokens[self.pos] {
+                Token::Return => {
+                    self.step();
+                    Ok(Node::new(NodeBase::Return(Box::new(self.expr()?))))
+                }
+                _ => self.expr(),
+            }?;
+            stmts.push(Box::new(exp));
+            self.expect(Token::SemiColon);
+        }
+
+        Ok(Node::new(NodeBase::Statements(stmts)))
+    }
+}
+
+impl Parser {
+    fn expr(&mut self) -> Result<Node, ()> {
+        self.expr_op1()
+    }
+
+    fn expr_op2(&mut self) -> Result<Node, ()> {
         let mut lhs = self.number()?;
         while !self.is_eof() {
             match self.tokens[self.pos] {
@@ -42,7 +65,7 @@ impl Parser {
         Ok(lhs)
     }
 
-    pub fn expr_op1(&mut self) -> Result<Node, ()> {
+    fn expr_op1(&mut self) -> Result<Node, ()> {
         let mut lhs = self.expr_op2()?;
         while !self.is_eof() {
             match self.tokens[self.pos] {
@@ -86,6 +109,13 @@ impl Parser {
 impl Parser {
     fn step(&mut self) {
         self.pos += 1;
+    }
+
+    fn expect(&mut self, token: Token) {
+        if self.tokens[self.pos] != token {
+            panic!("{:?} expected, but got {:?}", token, self.tokens[self.pos]);
+        }
+        self.step();
     }
 
     fn is_eof(&self) -> bool {

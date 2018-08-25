@@ -17,12 +17,12 @@ try() {
   fi
 } 
 
-try 0 0
-try 42 42
-try 21 1+2+3+4+5+6
-try 23 13+20-10
-try 2 1+2*3-5
-try 4 8/2
-try 18 9*4/2
+try 0 'return 0;'
+try 42 'return 42;'
+try 21 'return 1+2+3+4+5+6;'
+try 23 'return 13+20-10;'
+try 2 'return 1+2*3-5;'
+try 4 'return 8/2;'
+try 18 'return 9*4/2;'
 
 echo ok

@@ -5,6 +5,8 @@ pub enum Token {
     Minus,
     Asterisk,
     Slash,
+    SemiColon,
+    Return,
 }
 
 #[derive(Debug, PartialEq)]
@@ -25,23 +27,23 @@ impl Lexer {
 
     pub fn run(mut self) -> Result<Vec<Token>, ()> {
         while !self.is_eof() {
-            self = self.read_token()?;
+            self = self.token()?;
         }
         Ok(self.tokens)
     }
 }
 
 impl Lexer {
-    fn read_token(self) -> Result<Self, ()> {
+    fn token(self) -> Result<Self, ()> {
         match self.peek()? {
-            // 'a'...'z' | 'A'...'Z' => self.read_key_id(),
-            '0'...'9' => self.read_num(),
-            '\n' | 't' | ' ' => self.step().read_token(),
-            _ => self.read_symbol(),
+            'a'...'z' | 'A'...'Z' => self.keyword_identifier(),
+            '0'...'9' => self.num(),
+            '\n' | 't' | ' ' => self.step().token(),
+            _ => self.symbol(),
         }
     }
 
-    fn read_num(mut self) -> Result<Self, ()> {
+    fn num(mut self) -> Result<Self, ()> {
         let (l, num) = self.cut_token(|c| c.is_numeric())?;
         self = l;
         match num.parse() {
@@ -53,12 +55,30 @@ impl Lexer {
         }
     }
 
-    fn read_symbol(mut self) -> Result<Self, ()> {
+    fn keyword_identifier(mut self) -> Result<Self, ()> {
+        let (l, s) = self.cut_token(|c| c.is_alphanumeric() || c == '_')?;
+        self = l;
+        if let Some(kw) = Lexer::keyword(&s) {
+            self.tokens.push(kw);
+            return Ok(self);
+        }
+        Err(())
+    }
+
+    fn keyword(s: &str) -> Option<Token> {
+        match s {
+            "return" => Some(Token::Return),
+            _ => None,
+        }
+    }
+
+    fn symbol(mut self) -> Result<Self, ()> {
         let token = match self.peek()? {
             '+' => Token::Plus,
             '-' => Token::Minus,
             '*' => Token::Asterisk,
             '/' => Token::Slash,
+            ';' => Token::SemiColon,
             _ => return Err(()),
         };
         self = self.step();
@@ -112,7 +132,7 @@ fn run_test() {
 #[test]
 fn read_token_test() {
     let a1 = Lexer::new("20+3-5"); // 18
-    let a2 = a1.read_token().unwrap();
+    let a2 = a1.token().unwrap();
     assert_eq!(
         a2,
         Lexer {
@@ -121,7 +141,7 @@ fn read_token_test() {
             tokens: vec![Token::Num(20)],
         }
     );
-    let a3 = a2.read_token().unwrap();
+    let a3 = a2.token().unwrap();
     assert_eq!(
         a3,
         Lexer {
@@ -130,7 +150,7 @@ fn read_token_test() {
             tokens: vec![Token::Num(20), Token::Plus],
         }
     );
-    let a4 = a3.read_token().unwrap();
+    let a4 = a3.token().unwrap();
     assert_eq!(
         a4,
         Lexer {
@@ -139,7 +159,7 @@ fn read_token_test() {
             tokens: vec![Token::Num(20), Token::Plus, Token::Num(3)],
         }
     );
-    let a5 = a4.read_token().unwrap();
+    let a5 = a4.token().unwrap();
     assert_eq!(
         a5,
         Lexer {
@@ -148,7 +168,7 @@ fn read_token_test() {
             tokens: vec![Token::Num(20), Token::Plus, Token::Num(3), Token::Minus],
         }
     );
-    let a6 = a5.read_token().unwrap();
+    let a6 = a5.token().unwrap();
     assert_eq!(
         a6,
         Lexer {
@@ -170,7 +190,7 @@ fn read_token_test() {
 fn read_symbol_test() {
     let a = Lexer::new("+*12");
     assert_eq!(
-        a.read_symbol().unwrap(),
+        a.symbol().unwrap(),
         Lexer {
             code: "+*12".to_string(),
             pos: 1,
@@ -179,7 +199,7 @@ fn read_symbol_test() {
     );
     let a = Lexer::new("*12");
     assert_eq!(
-        a.read_symbol().unwrap(),
+        a.symbol().unwrap(),
         Lexer {
             code: "*12".to_string(),
             pos: 1,
@@ -192,7 +212,7 @@ fn read_symbol_test() {
 fn read_num_test() {
     let a = Lexer::new("12345a");
     assert_eq!(
-        a.read_num().unwrap(),
+        a.num().unwrap(),
         Lexer {
             code: "12345a".to_string(),
             pos: 5,

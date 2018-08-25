@@ -1,7 +1,9 @@
 #[derive(Debug, PartialEq)]
 pub enum NodeBase {
-    BinaryOp(BinOp, Box<Node>, Box<Node>),
     Number(usize),
+    BinaryOp(BinOp, Box<Node>, Box<Node>),
+    Return(Box<Node>),
+    Statements(Vec<Box<Node>>),
 }
 
 #[derive(Debug, PartialEq)]
