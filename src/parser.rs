@@ -13,10 +13,14 @@ impl Parser {
             pos: 0,
         }
     }
+
+    pub fn run(&mut self) -> Result<Node, ()> {
+        self.statements()
+    }
 }
 
 impl Parser {
-    pub fn statements(&mut self) -> Result<Node, ()> {
+    fn statements(&mut self) -> Result<Node, ()> {
         let mut stmts: Vec<Box<Node>> = vec![];
         while !self.is_eof() {
             let stmt = self.statement()?;

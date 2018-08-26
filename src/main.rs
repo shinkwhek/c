@@ -14,7 +14,7 @@ fn main() {
     if let Ok(lex) = lexer::Lexer::new(&code).run() {
         //println!("lexer:\n{:?}", lex);
 
-        if let Ok(parse) = parser::Parser::new(lex).statements() {
+        if let Ok(parse) = parser::Parser::new(lex).run() {
             //println!("parser:\n{:?}", parse);
 
             if let Ok(irv) = gen_ir::GenIr::new().run(parse) {
