@@ -17,7 +17,7 @@ fn main() {
         if let Ok(parse) = parser::Parser::new().run(lex) {
             //println!("parser:\n{:?}", parse);
 
-            if let Ok(irv) = gen_ir::GenIr::new().run(parse) {
+            if let Ok(irv) = gen_ir::GenIr::new().run(&parse) {
                 //println!{"ir:"}
                 //for ir in &irv {
                 //    println!("{:?}", ir);

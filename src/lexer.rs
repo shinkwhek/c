@@ -4,12 +4,18 @@ use node;
 pub enum Token {
     EOF,
     Num(usize),
-    // Equal,
+    Ident(String),
+    Ctype(String),
+    Equal,
     Plus,
     Minus,
     Asterisk,
     Slash,
     SemiColon,
+    LeftParen,
+    RightParen,
+    LeftCurlyBrace,
+    RigtCurlyBrace,
     Return,
 }
 
@@ -66,8 +72,7 @@ impl Lexer {
         if let Some(kw) = Lexer::keyword(&s) {
             self.tokens.push(kw);
         } else {
-            // self.tokens.push(Lexer::ident(&s));
-            return Err(());
+            self.tokens.push(Lexer::ident(&s));
         }
         Ok(self)
     }
@@ -75,8 +80,13 @@ impl Lexer {
     fn keyword(s: &str) -> Option<Token> {
         match s {
             "return" => Some(Token::Return),
+            "int" => Some(Token::Ctype(s.to_string())),
             _ => None,
         }
+    }
+
+    fn ident(s: &str) -> Token {
+        Token::Ident(s.to_string())
     }
 
     fn symbol(mut self) -> Result<Self, ()> {
@@ -86,7 +96,11 @@ impl Lexer {
             '*' => Token::Asterisk,
             '/' => Token::Slash,
             ';' => Token::SemiColon,
-            // '=' => Token::Equal,
+            '=' => Token::Equal,
+            '(' => Token::LeftParen,
+            ')' => Token::RightParen,
+            '{' => Token::LeftCurlyBrace,
+            '}' => Token::RigtCurlyBrace,
             _ => return Err(()),
         };
         self = self.step();

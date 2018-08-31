@@ -44,32 +44,6 @@ impl Parser {
         self.expr_op1(&tokens)
     }
 
-    fn expr_op2(&mut self, tokens: &Vec<Token>) -> Result<Node, ()> {
-        let mut lhs = self.number(&tokens)?;
-        while !self.is_eof(&tokens) {
-            match &tokens[self.pos] {
-                Token::Asterisk => {
-                    self.step();
-                    lhs = Node::new(NodeBase::BinaryOp(
-                        BinOp::Mul,
-                        Box::new(lhs),
-                        Box::new(self.number(&tokens)?),
-                    ));
-                }
-                Token::Slash => {
-                    self.step();
-                    lhs = Node::new(NodeBase::BinaryOp(
-                        BinOp::Div,
-                        Box::new(lhs),
-                        Box::new(self.number(&tokens)?),
-                    ));
-                }
-                _ => break,
-            }
-        }
-        Ok(lhs)
-    }
-
     fn expr_op1(&mut self, tokens: &Vec<Token>) -> Result<Node, ()> {
         let mut lhs = self.expr_op2(&tokens)?;
         while !self.is_eof(&tokens) {
@@ -97,9 +71,42 @@ impl Parser {
         }
         Ok(lhs)
     }
+
+    fn expr_op2(&mut self, tokens: &Vec<Token>) -> Result<Node, ()> {
+        let mut lhs = self.term(&tokens)?;
+        while !self.is_eof(&tokens) {
+            match &tokens[self.pos] {
+                Token::Asterisk => {
+                    self.step();
+                    lhs = Node::new(NodeBase::BinaryOp(
+                        BinOp::Mul,
+                        Box::new(lhs),
+                        Box::new(self.term(&tokens)?),
+                    ));
+                }
+                Token::Slash => {
+                    self.step();
+                    lhs = Node::new(NodeBase::BinaryOp(
+                        BinOp::Div,
+                        Box::new(lhs),
+                        Box::new(self.term(&tokens)?),
+                    ));
+                }
+                _ => break,
+            }
+        }
+        Ok(lhs)
+    }
 }
 
 impl Parser {
+    fn term(&mut self, tokens: &Vec<Token>) -> Result<Node, ()> {
+        match &tokens[self.pos] {
+            Token::Num(_) => self.number(&tokens),
+            _ => Err(()),
+        }
+    }
+
     fn number(&mut self, tokens: &Vec<Token>) -> Result<Node, ()> {
         match &tokens[self.pos] {
             Token::Num(n) => {

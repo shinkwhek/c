@@ -4,6 +4,9 @@ use std::collections::HashMap;
 
 use gen_ir::{Ir, Op};
 
+const reg_map_size: usize = 8192;
+const num_regs: isize = 7;
+
 pub struct RegAlloc {
     map: HashMap<isize, isize>,
     used: Vec<isize>,
@@ -20,7 +23,9 @@ impl RegAlloc {
     pub fn run(&mut self, irv: Vec<Ir>) -> Result<Vec<Ir>, ()> {
         let mut v = vec![];
         for ir in irv {
-            v.push(self.reg_alloc(ir)?);
+            if let Ok(i) = self.reg_alloc(ir) {
+                v.push(i);
+            }
         }
         Ok(v)
     }
@@ -29,17 +34,13 @@ impl RegAlloc {
 impl RegAlloc {
     fn reg_alloc(&mut self, mut ir: Ir) -> Result<Ir, ()> {
         match ir.op {
-            Op::Imm => {
+            Op::Imm | Op::Return => {
                 ir.lhs = self.alloc(ir.lhs)?;
                 Ok(ir)
             }
-            Op::Add | Op::Sub | Op::Mul | Op::Div => {
+            Op::Mov | Op::Add | Op::Sub | Op::Mul | Op::Div => {
                 ir.lhs = self.alloc(ir.lhs)?;
                 ir.rhs = self.alloc(ir.rhs)?;
-                Ok(ir)
-            }
-            Op::Return => {
-                self.kill(ir.lhs);
                 Ok(ir)
             }
             Op::Kill => {
@@ -47,23 +48,26 @@ impl RegAlloc {
                 ir.op = Op::Nop;
                 Ok(ir)
             }
-            _ => Err(()),
+            _ => Ok(ir),
         }
     }
 
     fn alloc(&mut self, ir_reg: isize) -> Result<isize, ()> {
-        if let Some(r) = self.map.get(&ir_reg) {
-            return Ok(*r);
+        if reg_map_size <= ir_reg as usize {
+            return Err(());
         }
 
-        let mut i = 0;
-        loop {
-            if self.used.iter().all(|&c| c != i) {
-                self.used.push(i);
-                self.map.insert(ir_reg, i);
-                return Ok(i);
+        if let Some(ir) = self.map.get(&ir_reg) {
+            return Ok(*ir);
+        }
+
+        for i in 0..num_regs {
+            if self.used.iter().any(|&c| c == i) {
+                continue;
             }
-            i += 1;
+            self.used.push(i);
+            self.map.insert(ir_reg, i);
+            return Ok(i);
         }
         return Err(());
     }
