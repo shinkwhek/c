@@ -91,23 +91,17 @@ impl X86 {
 
 impl X86 {
     pub fn emit(&mut self, irvv: &Vec<Vec<Ir>>) {
-        let ret = format!(".Lend{}", self.nlabel);
         self.nlabel += 1;
 
         println!(".intel_syntax noprefix");
         println!(".global main");
 
         for irv in irvv.iter() {
-            self.emit_ir(&irv, &ret);
+            self.emit_ir(&irv);
         }
-
-        println!("{}:", ret);
-        println!("  mov rsp, rbp");
-        println!("  pop rbp");
-        println!("  ret")
     }
 
-    fn emit_ir(&mut self, irv: &Vec<Ir>, ret: &str) {
+    fn emit_ir(&mut self, irv: &Vec<Ir>) {
         for ir in irv {
             match &ir.op {
                 Op::DefFun(s) => {
@@ -123,7 +117,7 @@ impl X86 {
                 }
                 Op::Return => {
                     println!("  mov rax, {}", self.reg(ir.lhs, 8));
-                    //println!("  jmp {}", ret);
+                    //println!("  jmp {}");
                 }
                 Op::Add => {
                     println!("  add {}, {}", self.reg(ir.lhs, 8), self.reg(ir.rhs, 8));
