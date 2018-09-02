@@ -1,9 +1,15 @@
 #[derive(Debug, PartialEq)]
 pub enum NodeBase {
+    // value
     Number(usize),
+    Ident(String),
+    // expr
     BinaryOp(BinOp, Box<Node>, Box<Node>),
+    // stmt
     Return(Box<Node>),
     Statements(Vec<Box<Node>>),
+    // def
+    DefFun(Ctype, Box<Node>, Vec<Node>, Box<Node>),
 }
 
 #[derive(Debug, PartialEq)]

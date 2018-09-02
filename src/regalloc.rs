@@ -20,14 +20,19 @@ impl RegAlloc {
         }
     }
 
-    pub fn run(&mut self, irv: Vec<Ir>) -> Result<Vec<Ir>, ()> {
+    pub fn run(&mut self, irvv: Vec<Vec<Ir>>) -> Result<Vec<Vec<Ir>>, ()> {
+        let mut vv = vec![];
         let mut v = vec![];
-        for ir in irv {
-            if let Ok(i) = self.reg_alloc(ir) {
-                v.push(i);
+        for irv in irvv {
+            for ir in irv {
+                if let Ok(i) = self.reg_alloc(ir) {
+                    v.push(i);
+                }
             }
+            vv.push(v);
+            v = vec![];
         }
-        Ok(v)
+        Ok(vv)
     }
 }
 

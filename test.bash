@@ -17,12 +17,13 @@ try() {
   fi
 } 
 
-try 0 'return 0;'
-try 42 'return 42;'
-try 21 'return 1+2+3+4+5+6;'
-try 23 'return 13+20-10;'
-try 2 'return 1+2*3-5;'
-try 4 'return 8/2;'
-try 18 'return 9*4/2;'
+try 0 'int main() {return 0;}'
+try 42 'int main() {return 42;}'
+try 21 'int main() {return 1+2+3+4+5+6;}'
+try 23 'int main() {return 13+20-10;}'
+try 2 'int main() {return 1+2*3-5;}'
+try 4 'int main() {return 8/2;}'
+try 18 'int main() {return 9*4/2;}'
+try 5 'int func() {return 1;} int main() {return 5;}'
 
 echo ok

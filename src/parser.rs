@@ -12,15 +12,43 @@ impl Parser {
         Parser { pos: 0 }
     }
 
-    pub fn run(&mut self, tokens: Vec<Token>) -> Result<Node, ()> {
-        self.statements(&tokens)
+    pub fn run(&mut self, tokens: Vec<Token>) -> Result<Vec<Node>, ()> {
+        let mut v = vec![];
+        while !self.is_eof(&tokens) {
+            let gd = self.global_def(&tokens)?;
+            v.push(gd);
+        }
+        Ok(v)
     }
 }
 
 impl Parser {
-    fn statements(&mut self, tokens: &Vec<Token>) -> Result<Node, ()> {
+    fn global_def(&mut self, tokens: &Vec<Token>) -> Result<Node, ()> {
+        match &tokens[self.pos] {
+            Token::Ctype(s) => {
+                self.step();
+                let typ = Node::ctype(&s)?;
+                let id = self.ident(&tokens)?;
+                self.expect(&tokens, Token::LeftParen);
+                let local_args = vec![];
+                self.expect(&tokens, Token::RightParen);
+                self.expect(&tokens, Token::LeftCurlyBrace);
+                let stmts = self.statements(&tokens, Token::RightCurlyBrace)?;
+                self.expect(&tokens, Token::RightCurlyBrace);
+                Ok(Node::new(NodeBase::DefFun(
+                    typ,
+                    Box::new(id),
+                    local_args,
+                    Box::new(stmts),
+                )))
+            }
+            _ => Err(()),
+        }
+    }
+
+    fn statements(&mut self, tokens: &Vec<Token>, end: Token) -> Result<Node, ()> {
         let mut stmts: Vec<Box<Node>> = vec![];
-        while !self.is_eof(&tokens) {
+        while end != tokens[self.pos] {
             let stmt = self.statement(&tokens)?;
             stmts.push(Box::new(stmt));
         }
@@ -103,6 +131,7 @@ impl Parser {
     fn term(&mut self, tokens: &Vec<Token>) -> Result<Node, ()> {
         match &tokens[self.pos] {
             Token::Num(_) => self.number(&tokens),
+            Token::Ident(_) => self.ident(&tokens),
             _ => Err(()),
         }
     }
@@ -112,6 +141,16 @@ impl Parser {
             Token::Num(n) => {
                 self.step();
                 Ok(Node::new(NodeBase::Number(*n)))
+            }
+            _ => Err(()),
+        }
+    }
+
+    fn ident(&mut self, tokens: &Vec<Token>) -> Result<Node, ()> {
+        match &tokens[self.pos] {
+            Token::Ident(s) => {
+                self.step();
+                Ok(Node::new(NodeBase::Ident(s.to_string())))
             }
             _ => Err(()),
         }

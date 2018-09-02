@@ -15,7 +15,7 @@ pub enum Token {
     LeftParen,
     RightParen,
     LeftCurlyBrace,
-    RigtCurlyBrace,
+    RightCurlyBrace,
     Return,
 }
 
@@ -100,7 +100,7 @@ impl Lexer {
             '(' => Token::LeftParen,
             ')' => Token::RightParen,
             '{' => Token::LeftCurlyBrace,
-            '}' => Token::RigtCurlyBrace,
+            '}' => Token::RightCurlyBrace,
             _ => return Err(()),
         };
         self = self.step();

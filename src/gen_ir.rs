@@ -9,6 +9,7 @@ pub enum Op {
     Imm,
     Mov,
     Return,
+    DefFun(String),
     Kill,
     Nop,
 }
@@ -34,6 +35,7 @@ impl Ir {
 pub struct GenIr {
     regc: isize,
     ins: Vec<Ir>,
+    result: Vec<Vec<Ir>>,
 }
 
 impl GenIr {
@@ -41,16 +43,33 @@ impl GenIr {
         GenIr {
             regc: 0,
             ins: vec![],
+            result: vec![],
         }
     }
 
-    pub fn run(mut self, node: &Node) -> Result<Vec<Ir>, ()> {
-        self.statement(node)?;
-        Ok(self.ins)
+    pub fn run(mut self, nodes: &Vec<Node>) -> Result<Vec<Vec<Ir>>, ()> {
+        for node in nodes {
+            self.ins = vec![];
+            self.global_def(node)?;
+            self.result.push(self.ins);
+        }
+        Ok(self.result)
     }
 }
 
 impl GenIr {
+    fn global_def(&mut self, node: &Node) -> Result<(), ()> {
+        match &node.base {
+            NodeBase::DefFun(_, id, _, stmts) => {
+                let id = GenIr::ident(&**id)?;
+                self.ins.push(Ir::new(Op::DefFun(id), -1, -1));
+                let stmtsv = self.statement(&**stmts)?;
+                Ok(())
+            }
+            _ => Err(()),
+        }
+    }
+
     fn statement(&mut self, node: &Node) -> Result<(), ()> {
         match &node.base {
             NodeBase::Return(e) => {
@@ -84,6 +103,13 @@ impl GenIr {
                 return self.binary_op(op, &*lhs, &*rhs);
             }
             _ => return Err(()),
+        }
+    }
+
+    fn ident(node: &Node) -> Result<String, ()> {
+        match &node.base {
+            NodeBase::Ident(s) => Ok((*s).to_string()),
+            _ => Err(()),
         }
     }
 

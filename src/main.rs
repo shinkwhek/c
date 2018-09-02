@@ -29,7 +29,7 @@ fn main() {
                     //    println!("{:?}", ir);
                     //}
 
-                    gen_x86::X86::new().gen(irv);
+                    gen_x86::X86::new().emit(&irv);
                 }
             }
         }

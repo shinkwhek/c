@@ -90,19 +90,31 @@ impl X86 {
 }
 
 impl X86 {
-    pub fn gen(&mut self, irv: Vec<Ir>) {
+    pub fn emit(&mut self, irvv: &Vec<Vec<Ir>>) {
         let ret = format!(".Lend{}", self.nlabel);
         self.nlabel += 1;
 
         println!(".intel_syntax noprefix");
         println!(".global main");
-        println!("main:");
 
-        println!("  push rbp");
-        println!("  mov rbp, rsp");
+        for irv in irvv.iter() {
+            self.emit_ir(&irv, &ret);
+        }
 
-        for ir in &irv {
-            match ir.op {
+        println!("{}:", ret);
+        println!("  mov rsp, rbp");
+        println!("  pop rbp");
+        println!("  ret")
+    }
+
+    fn emit_ir(&mut self, irv: &Vec<Ir>, ret: &str) {
+        for ir in irv {
+            match &ir.op {
+                Op::DefFun(s) => {
+                    println!("{}:", s);
+                    println!("  push rbp");
+                    println!("  mov rbp, rsp");
+                }
                 Op::Imm => {
                     println!("  mov {}, {}", self.reg(ir.lhs, 8), ir.rhs);
                 }
@@ -111,7 +123,7 @@ impl X86 {
                 }
                 Op::Return => {
                     println!("  mov rax, {}", self.reg(ir.lhs, 8));
-                    println!("  jmp {}", ret);
+                    //println!("  jmp {}", ret);
                 }
                 Op::Add => {
                     println!("  add {}, {}", self.reg(ir.lhs, 8), self.reg(ir.rhs, 8));
@@ -134,10 +146,8 @@ impl X86 {
                 _ => panic!("unknown operator"),
             }
         }
-        println!("{}:", ret);
-        println!("  mov rsp, rbp");
         println!("  pop rbp");
-        println!("  ret")
+        println!("  ret");
     }
 }
 
