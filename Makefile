@@ -1,7 +1,7 @@
 all: src/*
 	cargo build
 
-test: src/*
+test: src/* test.bash
 	cargo test
 	./test.bash
 

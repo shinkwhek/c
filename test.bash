@@ -17,15 +17,8 @@ try() {
   fi
 } 
 
-try 0 'int main() {return 0;}'
-try 42 'int main() {return 42;}'
-try 21 'int main() {return 1+2+3+4+5+6;}'
-try 23 'int main() {return 13+20-10;}'
-try 2 'int main() {return 1+2*3-5;}'
-try 4 'int main() {return 8/2;}'
-try 18 'int main() {return 9*4/2;}'
-try 5 'int f1() {return 2;} int f2() {return f1()*f1()+1;} int main() {return f2();}'
-try 5 'int f(int a) {return a+1;} int main() {return f(4);}'
-try 10 'int f(int a, int b) {return a+b;} int main() {return f(6,4);}'
+try 0 test/main.c
+try 27 test/addsubmuldiv.c
+try 12 test/func.c
 
 echo ok

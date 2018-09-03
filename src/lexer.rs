@@ -47,11 +47,15 @@ impl Lexer {
 
 impl Lexer {
     fn token(self) -> Result<Self, ()> {
-        match self.peek()? {
-            'a'...'z' | 'A'...'Z' => self.keyword_identifier(),
-            '0'...'9' => self.num(),
-            '\n' | '\t' | ' ' => self.step().token(),
-            _ => self.symbol(),
+        if !self.is_eof() {
+            match self.peek()? {
+                'a'...'z' | 'A'...'Z' => self.keyword_identifier(),
+                '0'...'9' => self.num(),
+                '\n' | '\t' | ' ' => self.step().token(),
+                _ => self.symbol(),
+            }
+        } else {
+            Ok(self)
         }
     }
 
