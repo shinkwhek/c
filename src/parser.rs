@@ -131,7 +131,12 @@ impl Parser {
     fn term(&mut self, tokens: &Vec<Token>) -> Result<Node, ()> {
         match &tokens[self.pos] {
             Token::Num(_) => self.number(&tokens),
-            Token::Ident(_) => self.ident(&tokens),
+            Token::Ident(_) => {
+                if self.consume(&tokens, Token::LeftParen, 1) {
+                    return self.funccall(&tokens);
+                }
+                self.ident(&tokens)
+            }
             _ => Err(()),
         }
     }
@@ -155,11 +160,30 @@ impl Parser {
             _ => Err(()),
         }
     }
+
+    fn funccall(&mut self, tokens: &Vec<Token>) -> Result<Node, ()> {
+        match &tokens[self.pos] {
+            Token::Ident(s) => {
+                self.step();
+                self.expect(&tokens, Token::LeftParen);
+                self.expect(&tokens, Token::RightParen);
+                Ok(Node::new(NodeBase::Call(s.to_string(), vec![])))
+            }
+            _ => Err(()),
+        }
+    }
 }
 
 impl Parser {
     fn step(&mut self) {
         self.pos += 1;
+    }
+
+    fn consume(&self, tokens: &Vec<Token>, token: Token, n: usize) -> bool {
+        if tokens[self.pos + n] == token {
+            return true;
+        }
+        false
     }
 
     fn expect(&mut self, tokens: &Vec<Token>, token: Token) {

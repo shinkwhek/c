@@ -39,7 +39,7 @@ impl RegAlloc {
 impl RegAlloc {
     fn reg_alloc(&mut self, mut ir: Ir) -> Result<Ir, ()> {
         match ir.op {
-            Op::Imm | Op::Return => {
+            Op::Imm | Op::Return | Op::Call(_) => {
                 ir.lhs = self.alloc(ir.lhs)?;
                 Ok(ir)
             }

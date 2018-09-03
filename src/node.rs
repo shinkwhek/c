@@ -3,6 +3,7 @@ pub enum NodeBase {
     // value
     Number(usize),
     Ident(String),
+    Call(String, Vec<(Ctype, Node)>),
     // expr
     BinaryOp(BinOp, Box<Node>, Box<Node>),
     // stmt

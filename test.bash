@@ -24,6 +24,6 @@ try 23 'int main() {return 13+20-10;}'
 try 2 'int main() {return 1+2*3-5;}'
 try 4 'int main() {return 8/2;}'
 try 18 'int main() {return 9*4/2;}'
-try 5 'int func() {return 1;} int main() {return 5;}'
+try 5 'int f1() {return 2;} int f2() {return f1()*f1()+1;} int main() {return f2();}'
 
 echo ok

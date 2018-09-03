@@ -10,6 +10,7 @@ pub enum Op {
     Mov,
     Return,
     DefFun(String),
+    Call(String),
     Kill,
     Nop,
 }
@@ -97,6 +98,12 @@ impl GenIr {
             NodeBase::Number(n) => {
                 let current = self.regc_step();
                 self.ins.push(Ir::new(Op::Imm, current, *n as isize));
+                return Ok(current);
+            }
+            NodeBase::Call(s, _) => {
+                let current = self.regc_step();
+                self.ins
+                    .push(Ir::new(Op::Call((*s).to_string()), current, -1));
                 return Ok(current);
             }
             NodeBase::BinaryOp(op, lhs, rhs) => {

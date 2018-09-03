@@ -109,6 +109,11 @@ impl X86 {
                     println!("  push rbp");
                     println!("  mov rbp, rsp");
                 }
+                Op::Call(s) => {
+                    println!("  mov rax, 0");
+                    println!("  call {}", s);
+                    println!("  mov {}, rax", self.reg(ir.lhs, 8));
+                }
                 Op::Imm => {
                     println!("  mov {}, {}", self.reg(ir.lhs, 8), ir.rhs);
                 }
