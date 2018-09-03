@@ -25,6 +25,7 @@ try 2 'int main() {return 1+2*3-5;}'
 try 4 'int main() {return 8/2;}'
 try 18 'int main() {return 9*4/2;}'
 try 5 'int f1() {return 2;} int f2() {return f1()*f1()+1;} int main() {return f2();}'
-try 5 'int f(int a) {return a;} int main() {return f(5);}'
+try 5 'int f(int a) {return a+1;} int main() {return f(4);}'
+try 10 'int f(int a, int b) {return a+b;} int main() {return f(6,4);}'
 
 echo ok

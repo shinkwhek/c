@@ -111,49 +111,53 @@ impl X86 {
                 }
                 Op::Call(s, args) => {
                     for arg in args {
-                        println!("  mov {}, {}", self.argreg(*arg, 8), self.reg(*arg, 8));
+                        println!("  mov {}, {}", self.argreg(*arg, 4), self.reg(*arg, 4));
                     }
 
                     println!("  mov rax, 0");
                     println!("  call {}", s);
-                    println!("  mov {}, rax", self.reg(ir.lhs, 8));
+                    println!("  mov {}, eax", self.reg(ir.lhs, 4));
                 }
                 Op::Imm => {
-                    println!("  mov {}, {}", self.reg(ir.lhs, 8), ir.rhs);
+                    println!("  mov {}, {}", self.reg(ir.lhs, 4), ir.rhs);
                 }
                 Op::StoreArg => {
                     println!(
-                        "  mov [rbp-{}], {}",
+                        "  mov dword ptr [rbp-{}], {}",
                         (ir.lhs + 1) * 4,
-                        self.argreg(ir.lhs, 8)
+                        self.argreg(ir.lhs, 4)
                     );
                 }
                 Op::Load => {
-                    println!("  mov {}, [rbp-{}]", self.reg(ir.lhs, 8), (ir.lhs + 1) * 4);
+                    println!(
+                        "  mov {}, dword ptr [rbp-{}]",
+                        self.reg(ir.lhs, 4),
+                        (ir.lhs + 1) * 4
+                    );
                 }
                 Op::Mov => {
-                    println!("  mov {}, {}", self.reg(ir.lhs, 8), self.reg(ir.rhs, 8));
+                    println!("  mov {}, {}", self.reg(ir.lhs, 4), self.reg(ir.rhs, 4));
                 }
                 Op::Return => {
-                    println!("  mov rax, {}", self.reg(ir.lhs, 8));
+                    println!("  mov eax, {}", self.reg(ir.lhs, 4));
                     //println!("  jmp {}");
                 }
                 Op::Add => {
-                    println!("  add {}, {}", self.reg(ir.lhs, 8), self.reg(ir.rhs, 8));
+                    println!("  add {}, {}", self.reg(ir.lhs, 4), self.reg(ir.rhs, 4));
                 }
                 Op::Sub => {
-                    println!("  sub {}, {}", self.reg(ir.lhs, 8), self.reg(ir.rhs, 8));
+                    println!("  sub {}, {}", self.reg(ir.lhs, 4), self.reg(ir.rhs, 4));
                 }
                 Op::Mul => {
-                    println!("  mov rax, {}", self.reg(ir.rhs, 8));
-                    println!("  imul {}", self.reg(ir.lhs, 8));
-                    println!("  mov {}, rax", self.reg(ir.lhs, 8));
+                    println!("  mov eax, {}", self.reg(ir.rhs, 4));
+                    println!("  imul {}", self.reg(ir.lhs, 4));
+                    println!("  mov {}, eax", self.reg(ir.lhs, 4));
                 }
                 Op::Div => {
-                    println!("  mov rax, {}", self.reg(ir.lhs, 8));
+                    println!("  mov eax, {}", self.reg(ir.lhs, 4));
                     println!("  cqo");
-                    println!("  div {}", self.reg(ir.rhs, 8));
-                    println!("  mov {}, rax", self.reg(ir.lhs, 8));
+                    println!("  div {}", self.reg(ir.rhs, 4));
+                    println!("  mov {}, eax", self.reg(ir.lhs, 4));
                 }
                 Op::Nop => continue,
                 _ => panic!("unknown operator"),
