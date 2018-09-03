@@ -20,13 +20,17 @@ fn main() {
             if let Ok(irv) = gen_ir::GenIr::new().run(&parse) {
                 //println!{"ir:"}
                 //for ir in &irv {
-                //    println!("{:?}", ir);
+                //    for i in ir {
+                //        println!("{:?}", i);
+                //    }
                 //}
 
                 if let Ok(irv) = regalloc::RegAlloc::new().run(irv) {
                     //println!("regAlloc:");
                     //for ir in &irv {
-                    //    println!("{:?}", ir);
+                    //    for i in ir {
+                    //        println!("{:?}", i);
+                    //    }
                     //}
 
                     gen_x86::X86::new().emit(&irv);

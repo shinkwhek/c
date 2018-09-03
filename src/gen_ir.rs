@@ -1,4 +1,4 @@
-use node::{BinOp, Node, NodeBase};
+use node::{BinOp, Ctype, Node, NodeBase};
 
 #[derive(Debug, PartialEq)]
 pub enum Op {
@@ -10,7 +10,9 @@ pub enum Op {
     Mov,
     Return,
     DefFun(String),
-    Call(String),
+    StoreArg,
+    Load,
+    Call(String, Vec<isize>),
     Kill,
     Nop,
 }
@@ -23,7 +25,7 @@ pub struct Ir {
 }
 
 impl Ir {
-    fn new(op: Op, lhs: isize, rhs: isize) -> Ir {
+    pub fn new(op: Op, lhs: isize, rhs: isize) -> Ir {
         Ir {
             op: op,
             lhs: lhs,
@@ -61,13 +63,20 @@ impl GenIr {
 impl GenIr {
     fn global_def(&mut self, node: &Node) -> Result<(), ()> {
         match &node.base {
-            NodeBase::DefFun(_, id, _, stmts) => {
+            NodeBase::DefFun(_, id, args, stmts) => {
                 let id = GenIr::ident(&**id)?;
                 self.ins.push(Ir::new(Op::DefFun(id), -1, -1));
+                self.args_def(&args);
                 let stmtsv = self.statement(&**stmts)?;
                 Ok(())
             }
             _ => Err(()),
+        }
+    }
+
+    fn args_def(&mut self, args: &Vec<(Ctype, Node)>) {
+        for i in 0..args.len() {
+            self.ins.push(Ir::new(Op::StoreArg, i as isize, -1));
         }
     }
 
@@ -100,10 +109,16 @@ impl GenIr {
                 self.ins.push(Ir::new(Op::Imm, current, *n as isize));
                 return Ok(current);
             }
-            NodeBase::Call(s, _) => {
+            NodeBase::Ident(s) => {
+                let r = self.regc_step();
+                self.ins.push(Ir::new(Op::Load, r, -1));
+                return Ok(r);
+            }
+            NodeBase::Call(s, args) => {
                 let current = self.regc_step();
+                let args = self.call_args(&args)?;
                 self.ins
-                    .push(Ir::new(Op::Call((*s).to_string()), current, -1));
+                    .push(Ir::new(Op::Call((*s).to_string(), args), current, -1));
                 return Ok(current);
             }
             NodeBase::BinaryOp(op, lhs, rhs) => {
@@ -111,6 +126,14 @@ impl GenIr {
             }
             _ => return Err(()),
         }
+    }
+
+    fn call_args(&mut self, args: &Vec<Node>) -> Result<Vec<isize>, ()> {
+        let mut v = vec![];
+        for arg in args {
+            v.push(self.expr(&arg)?);
+        }
+        Ok(v)
     }
 
     fn ident(node: &Node) -> Result<String, ()> {

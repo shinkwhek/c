@@ -3,14 +3,14 @@ pub enum NodeBase {
     // value
     Number(usize),
     Ident(String),
-    Call(String, Vec<(Ctype, Node)>),
+    Call(String, Vec<Node>),
     // expr
     BinaryOp(BinOp, Box<Node>, Box<Node>),
     // stmt
     Return(Box<Node>),
     Statements(Vec<Box<Node>>),
     // def
-    DefFun(Ctype, Box<Node>, Vec<Node>, Box<Node>),
+    DefFun(Ctype, Box<Node>, Vec<(Ctype, Node)>, Box<Node>),
 }
 
 #[derive(Debug, PartialEq)]

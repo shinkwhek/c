@@ -39,9 +39,30 @@ impl RegAlloc {
 impl RegAlloc {
     fn reg_alloc(&mut self, mut ir: Ir) -> Result<Ir, ()> {
         match ir.op {
-            Op::Imm | Op::Return | Op::Call(_) => {
+            Op::Imm => {
+                let a = self.alloc(ir.lhs)?;
+                Ok(Ir::new(Op::Imm, a, ir.rhs))
+            }
+            Op::StoreArg => {
+                let a = self.alloc(ir.lhs)?;
+                Ok(Ir::new(Op::StoreArg, a, ir.rhs))
+            }
+            Op::Load => {
+                let a = self.alloc(ir.lhs)?;
+                Ok(Ir::new(Op::Load, a, ir.rhs))
+            }
+            Op::Return => {
                 ir.lhs = self.alloc(ir.lhs)?;
                 Ok(ir)
+            }
+            Op::Call(ref s, ref mut v) => {
+                let mut alloced_v = vec![];
+                for i in v.iter() {
+                    alloced_v.push(self.alloc(*i)?);
+                }
+                *v = alloced_v;
+                let a = self.alloc(ir.lhs)?;
+                Ok(Ir::new(Op::Call((*s).to_string(), v.to_vec()), a, ir.rhs))
             }
             Op::Mov | Op::Add | Op::Sub | Op::Mul | Op::Div => {
                 ir.lhs = self.alloc(ir.lhs)?;

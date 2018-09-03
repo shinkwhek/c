@@ -1,7 +1,7 @@
 #![feature(slice_patterns)]
 
 use lexer::{Lexer, Token};
-use node::{BinOp, Node, NodeBase};
+use node::{BinOp, Ctype, Node, NodeBase};
 
 pub struct Parser {
     pos: usize,
@@ -30,7 +30,7 @@ impl Parser {
                 let typ = Node::ctype(&s)?;
                 let id = self.ident(&tokens)?;
                 self.expect(&tokens, Token::LeftParen);
-                let local_args = vec![];
+                let local_args = self.args_def(&tokens)?;
                 self.expect(&tokens, Token::RightParen);
                 self.expect(&tokens, Token::LeftCurlyBrace);
                 let stmts = self.statements(&tokens, Token::RightCurlyBrace)?;
@@ -44,6 +44,19 @@ impl Parser {
             }
             _ => Err(()),
         }
+    }
+
+    fn args_def(&mut self, tokens: &Vec<Token>) -> Result<Vec<(Ctype, Node)>, ()> {
+        let mut v = vec![];
+        while !self.consume(&tokens, Token::RightParen, 0) {
+            let argtyp = self.ctype(&tokens)?;
+            let argid = self.ident(&tokens)?;
+            v.push((argtyp, argid));
+            if self.consume(&tokens, Token::Comma, 0) {
+                self.expect(&tokens, Token::Comma);
+            }
+        }
+        Ok(v)
     }
 
     fn statements(&mut self, tokens: &Vec<Token>, end: Token) -> Result<Node, ()> {
@@ -166,8 +179,33 @@ impl Parser {
             Token::Ident(s) => {
                 self.step();
                 self.expect(&tokens, Token::LeftParen);
+                let call_arg = self.call_arg(&tokens)?;
                 self.expect(&tokens, Token::RightParen);
-                Ok(Node::new(NodeBase::Call(s.to_string(), vec![])))
+                Ok(Node::new(NodeBase::Call(s.to_string(), call_arg)))
+            }
+            _ => Err(()),
+        }
+    }
+
+    fn call_arg(&mut self, tokens: &Vec<Token>) -> Result<Vec<Node>, ()> {
+        let mut v = vec![];
+        while !self.consume(&tokens, Token::RightParen, 0) {
+            let exp = self.expr(&tokens)?;
+            v.push(exp);
+            if self.consume(&tokens, Token::Comma, 0) {
+                self.expect(&tokens, Token::Comma);
+            } else {
+                break;
+            }
+        }
+        Ok(v)
+    }
+
+    fn ctype(&mut self, tokens: &Vec<Token>) -> Result<Ctype, ()> {
+        match &tokens[self.pos] {
+            Token::Ctype(s) => {
+                self.step();
+                Node::ctype(&s)
             }
             _ => Err(()),
         }

@@ -109,13 +109,27 @@ impl X86 {
                     println!("  push rbp");
                     println!("  mov rbp, rsp");
                 }
-                Op::Call(s) => {
+                Op::Call(s, args) => {
+                    for arg in args {
+                        println!("  mov {}, {}", self.argreg(*arg, 8), self.reg(*arg, 8));
+                    }
+
                     println!("  mov rax, 0");
                     println!("  call {}", s);
                     println!("  mov {}, rax", self.reg(ir.lhs, 8));
                 }
                 Op::Imm => {
                     println!("  mov {}, {}", self.reg(ir.lhs, 8), ir.rhs);
+                }
+                Op::StoreArg => {
+                    println!(
+                        "  mov [rbp-{}], {}",
+                        (ir.lhs + 1) * 4,
+                        self.argreg(ir.lhs, 8)
+                    );
+                }
+                Op::Load => {
+                    println!("  mov {}, [rbp-{}]", self.reg(ir.lhs, 8), (ir.lhs + 1) * 4);
                 }
                 Op::Mov => {
                     println!("  mov {}, {}", self.reg(ir.lhs, 8), self.reg(ir.rhs, 8));
@@ -156,6 +170,15 @@ impl X86 {
             1 => &self.regs8,
             4 => &self.regs32,
             _ => &self.regs,
+        };
+        let s = &r[ir_reg as usize].name;
+        s.to_string()
+    }
+    fn argreg(&self, ir_reg: isize, size: usize) -> String {
+        let r = match size {
+            1 => &self.argregs8,
+            4 => &self.argregs32,
+            _ => &self.argregs,
         };
         let s = &r[ir_reg as usize].name;
         s.to_string()
